@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:file="http://www.mulesoft.org/schema/mule/file"
+	xmlns:jms="http://www.mulesoft.org/schema/mule/jms"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/current/mule-jms.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="94381ddf-68fa-46b2-9dc8-9e193d55252f" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<jms:config name="JMS_Config1" doc:name="JMS Config" doc:id="cd9e4c33-90ed-4d28-8fb2-648d3e416282" >
+		<jms:active-mq-connection username="admin" password="admin" >
+			<jms:factory-configuration brokerUrl="tcp://localhost:61616" />
+		</jms:active-mq-connection>
+	</jms:config>
+	<jms:config name="JMS_Config3" doc:name="JMS Config" doc:id="96cd0d43-f922-403e-84cb-d1aa147391ac" >
+		<jms:active-mq-connection username="admin" password="admin" >
+			<jms:factory-configuration brokerUrl="tcp://localhost:61616" />
+		</jms:active-mq-connection>
+	</jms:config>
+	<file:config name="File_Config" doc:name="File Config" doc:id="0f5ffcd5-6050-42f8-9fbf-3a1fb34f73d3" >
+		<file:connection workingDir="E:\demo\New folder" />
+	</file:config>
+	<file:config name="File_Config1" doc:name="File Config" doc:id="4501c415-c63d-448c-9798-06cb291ecb51" >
+		<file:connection workingDir="C:\Users\DELL\Downloads" />
+	</file:config>
+	<flow name="app1" doc:id="999e5943-8d51-4aa4-99eb-2f90feef2424" initialState="started">
+		<http:listener doc:name="Listener" doc:id="4c5e36d5-050b-45da-8403-eb3f7898cd1a" config-ref="HTTP_Listener_config" path="/jms"/>
+		<file:read doc:name="Read" doc:id="fdc5ac0c-191d-45df-8d7b-081a754d64f2" config-ref="File_Config1" path="C:\Users\DELL\Downloads\SalesJan2009.csv"/>
+		<logger level="INFO" doc:name="Logger" doc:id="aeaf3e9e-d844-4461-a7b4-c9f9e8c4c0b3" message="started" />
+		<ee:transform doc:name="Transform Message" doc:id="9d76d3e0-cb76-4594-8bf2-bc5a17a7a0f0" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<jms:publish doc:name="Publish" doc:id="9c1df464-220f-4c17-9f47-82d7f6acdf17" destination="EMPLOYEEQUEUE1" config-ref="JMS_Config1"/>
+		<logger level="INFO" doc:name="Logger" doc:id="d0567611-1ef9-41ee-8dd1-6f84e4b0ccc3" message="#[payload]"/>
+	</flow>
+</mule>

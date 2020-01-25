@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:jms="http://www.mulesoft.org/schema/mule/jms"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/current/mule-jms.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<jms:config name="JMS_Config2" doc:name="JMS Config" doc:id="dc054acb-53f1-4e2b-b496-5fed546e2ab1" >
+		<jms:active-mq-connection username="admin" password="damin" >
+			<jms:factory-configuration brokerUrl="tcp://localhost:61616" />
+		</jms:active-mq-connection>
+	</jms:config>
+	<jms:config name="JMS_Config" doc:name="JMS Config" doc:id="db846fc4-37bd-4f0a-90e9-de93ed917e26" >
+		<jms:active-mq-connection />
+	</jms:config>
+	<jms:config name="JMS_Config4" doc:name="JMS Config" doc:id="7225acc6-2d99-45b4-b73f-6dbbe0b64366" >
+		<jms:active-mq-connection />
+	</jms:config>
+	<jms:config name="JMS_Config5" doc:name="JMS Config" doc:id="d04eb87b-d3b0-40c2-9c2d-33abc2a23a36" >
+		<jms:active-mq-connection username="admin" password="admin">
+			<jms:factory-configuration brokerUrl="tcp://localhost:61616" />
+		</jms:active-mq-connection>
+	</jms:config>
+	<flow name="jms-subscribeFlow" doc:id="a5f17703-6543-4a4a-a28e-f7ef4f220fed" >
+		<jms:listener doc:name="Listener" doc:id="e8e48072-a26d-4ba0-bacc-989d3e61ba73" config-ref="JMS_Config5" destination="EMPLOYEEQUEUE1"/>
+		<logger level="INFO" doc:name="Logger" doc:id="616c363e-b629-4598-a97b-7905a9a0df9a" message="#[payload]" />
+		<ee:transform doc:name="Transform Message" doc:id="157ae813-ed1d-4e78-bf55-87fb2d422ddd" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="Transform Message" doc:id="4171faba-3f5d-4629-a941-71d6592e88d4" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload map(item,index) -> {
+    Transaction_date: item.Transaction_date,
+    Productname: item.Product,
+    Price: item.Price,
+    country: item.Country
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="b4d2b461-74ad-4e40-b956-a90d2ab75917" message="#[payload]"/>
+	</flow>
+</mule>
